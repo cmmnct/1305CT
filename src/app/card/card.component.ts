@@ -10,7 +10,7 @@ import { Card } from '../memory/memory.component';
 })
 export class CardComponent {
 
-  @Input({required : true}) card:Card = new Card('',0,false,false);
+  @Input({required : true}) card:Card =  {name:''};
   @Output() clicked = new EventEmitter<void>()
 
 }

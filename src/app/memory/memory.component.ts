@@ -10,7 +10,7 @@ import { CardComponent } from '../card/card.component';
 })
 export class MemoryComponent {
 
-cards:CardT[] = [ {"name":"dog"},
+cards:Card[] = [ {"name":"dog"},
 {"name":"cat"}, 
 {"name":"rooster"}, 
 {"name":"goose"}, 
@@ -33,7 +33,7 @@ cards:CardT[] = [ {"name":"dog"},
 {"name":"donkey"}, 
 {"name":"pigeon"}
 ]
-cards2:CardT[] = [ {"name":"dog"},
+cards2:Card[] = [ {"name":"dog"},
 {"name":"cat"}, 
 {"name":"rooster"}, 
 {"name":"goose"}, 
@@ -57,13 +57,10 @@ cards2:CardT[] = [ {"name":"dog"},
 {"name":"pigeon"}
 ]
 
-//card1:Card = new Card('',0,false,false)
-//card2:Card = new Card('',0,false,false)
+card1:Card = {name:''}
+card2:Card = {name:''}
 
-card1:CardT = {name:''}
-card2:CardT = {name:''}
-
-deck = this.shuffle(JSON.parse(JSON.stringify([...this.cards].concat(...this.cards))));
+deck = this.shuffle(JSON.parse(JSON.stringify(this.cards.concat(this.cards))));
 
   
 
@@ -87,8 +84,8 @@ if(this.card1?.name === this.card2?.name){
  this.card1.exposed = false
  this.card2.exposed = false
 }
-this.card1 = new Card('',0,false,false);
-this.card2 = new Card('',0,false,false);
+this.card1 = {name:''}
+this.card2 = {name:''}
 }
 
 shuffle(array:any) {
@@ -109,19 +106,10 @@ shuffle(array:any) {
   return array;
 }
 }
-export type CardT = {
+export type Card = {
 name:string,
 hidden?:boolean,
 exposed?:boolean,
 id?:number
-}
-
-export class Card  {
-  constructor(public name:string,
-  public id:number,
-  public exposed:boolean,
-  public hidden: boolean){
-  }
- 
 }
 
