@@ -1,10 +1,8 @@
-@if(!card.hidden){
 <div class="card">
+    @if(!card.hidden){
     <img [src]="'assets/images/'+ card.name + '.jpg'">
     @if(!card.exposed){
-        <div class="cover" (click)="clicked.emit()"></div>
+    <div class="cover" (click)="clicked.emit()"></div>
     }
-    
+    }
 </div>
-}
-
