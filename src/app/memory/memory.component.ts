@@ -33,15 +33,39 @@ cards:CardT[] = [ {"name":"dog"},
 {"name":"donkey"}, 
 {"name":"pigeon"}
 ]
+cards2:CardT[] = [ {"name":"dog"},
+{"name":"cat"}, 
+{"name":"rooster"}, 
+{"name":"goose"}, 
+{"name":"chick"}, 
+{"name":"cow"}, 
+{"name":"kitten"}, 
+{"name":"lamb"}, 
+{"name":"mouse"}, 
+{"name":"piglet"}, 
+{"name":"puppy"}, 
+{"name":"duck"}, 
+{"name":"horse"}, 
+{"name":"goat"}, 
+{"name":"sheep"}, 
+{"name":"hen"}, 
+{"name":"pig"}, 
+{"name":"fox"}, 
+{"name":"hedgehog"}, 
+{"name":"peacock"}, 
+{"name":"donkey"}, 
+{"name":"pigeon"}
+]
 
-card1:Card = new Card('',0,false,false)
-card2:Card = new Card('',0,false,false)
+//card1:Card = new Card('',0,false,false)
+//card2:Card = new Card('',0,false,false)
 
-deck = this.shuffle(this.cards.concat(this.cards));
+card1:CardT = {name:''}
+card2:CardT = {name:''}
 
-  ngOnInit(){
-    this.deck = this.deck.map((card:CardT, index:number)=> new Card(card.name, index, false, false,))
-  }
+deck = this.shuffle(JSON.parse(JSON.stringify([...this.cards].concat(...this.cards))));
+
+  
 
 onClickCard(card:Card){
   if (!this.card1.name){
@@ -86,7 +110,10 @@ shuffle(array:any) {
 }
 }
 export type CardT = {
-name:string
+name:string,
+hidden?:boolean,
+exposed?:boolean,
+id?:number
 }
 
 export class Card  {
