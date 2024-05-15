@@ -1,0 +1,12 @@
+
+<div class="thumbbox">
+    @for(patch of patches; track patch.id){
+         <tvs-colorthumb [rgba]="patch.rgba" [name]="patch.name" (delete)="onDeletePatch(patch)" (edit)="onEditPatch(patch)"/>
+    }
+    <div class="material-icons big add-btn" (click)="onClickAdd()"> add </div>
+       
+</div>
+
+@if(editState){
+    <tvs-patch-editor [patch]="editPatch" (cancel)="onCancelEdit()" (save)="onSavePatch()"/>
+}

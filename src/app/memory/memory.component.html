@@ -1,0 +1,6 @@
+<div class="field">
+    @for(card of deck; track card.name; let index = $index){
+    <tvs-card [card]="card" class="card" (clicked)="onClickCard(card)"/>
+}
+</div>
+ 
