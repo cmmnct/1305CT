@@ -1,105 +1,104 @@
-import { Component, OnInit, signal, Signal, computed, inject, WritableSignal } from '@angular/core';
+import { Component, signal, Signal, computed, inject, WritableSignal } from '@angular/core';
 import { CardComponent } from '../card/card.component';
-import { Observable } from 'rxjs';
+import { Observable} from 'rxjs';
 import { CardsService } from './cards.service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncPipe } from '@angular/common';
 import { TimerPipe } from '../pipes/timer.pipe';
 
 @Component({
   selector: 'tvs-memory',
   standalone: true,
-  imports: [CardComponent, AsyncPipe, TimerPipe],
+  imports: [CardComponent, AsyncPipe, TimerPipe, AsyncPipe],
   templateUrl: './memory.component.html',
   styleUrl: './memory.component.css'
 })
-export class MemoryComponent implements OnInit {
+export class MemoryComponent{
 
-  cardService = inject(CardsService)
-  cards!: Signal<Card[]>
-  cards$!: Observable<Card[]>
-  timer: number = 0
-  counter = setInterval(() => { }, 1000);
-
-  ngOnInit(): void {
-    this.cards = this.cardService.getCards()
-   
-  }
+  cardService = inject(CardsService);
+  cards$!: Observable<Card[]>;
+  timer = new Timer();
+  cardSet = new Cardset({name:''}, {name:''});
+  mute = false;
   
   onSelectSize(size: string) {
-    this.timer = 0;
-    clearInterval(this.counter);
+    this.timer.reset();
     this.cards$ = this.cardService.getCards$(Number(size));
-    this.counter = setInterval(() => this.count(), 1000)
   }
-
-  count() {
-    this.timer++
-  }
-
-  fieldsize = signal<number>(5);
-  selection = computed(() => this.shuffle(this.cards().slice(0, Math.round(Math.pow(this.fieldsize(), 2)) / 2)))
-
-  card1 = signal<Card>({ name: '' })
-  card2 = signal<Card>({ name: '' })
-  mute = false
-
-
-  deck = computed(() => (this.shuffle(JSON.parse(JSON.stringify(this.selection().concat(this.selection()))))))
 
   onClickCard(card: Card) {
-    if (!this.card1().name) {
-      this.card1.set(card)
-      card.exposed = true;
-      this.playSound(card);
-    } else if (!this.card2().name) {
-      this.card2.set(card)
-      card.exposed = true;
-      this.playSound(card);
-      setTimeout(() => this.evaluateMatch(), 2000)
+    if (!this.cardSet.card1.name) {
+      this.cardSet.card1 = card;
+      this.cardSet.card1.exposed = true;
+      this.playSound(card.name);
+    } else if (!this.cardSet.card2.name) {
+      this.cardSet.card2 = card;
+      this.cardSet.card2.exposed = true;
+      this.playSound(card.name);
+      setTimeout(() => this.evaluateMatch(this.cardSet), 2000)
     }
   }
 
-  playSound(card: Card) {
+  playSound(name:string) {
     if (!this.mute) {
-      let snd = new Audio('assets/snd/' + card.name + '.wav');
+      let snd = new Audio('assets/snd/' + name + '.wav');
       snd.play();
     }
   }
 
-  evaluateMatch() {
-    if (this.card1().name === this.card2().name) {
-      this.card1().hidden = true;
-      this.card2().hidden = true;
+  evaluateMatch(cardSet:Cardset) {
+    if (cardSet.card1.name === cardSet.card2.name) {
+      this.cardSet.hidden();
     } else {
-      this.card1().exposed = false
-      this.card2().exposed = false
+      this.cardSet.covered()
     }
-    this.card1.set({ name: '' })
-    this.card2.set({ name: '' })
+      this.cardSet.reset()
   }
+}
 
-  shuffle(array: any) {
-    var m = array.length, t, i;
 
-    // While there remain elements to shuffle…
-    while (m) {
+export class Cardset {
+ constructor(public card1:Card, public card2:Card){
+ }
+ hidden(){
+  this.card1.hidden = true;
+  this.card2.hidden = true;
+ }
+ covered(){
+  this.card1.exposed = false
+  this.card2.exposed = false
+ }
+ reset(){
+  this.card1 = {name:''}
+  this.card2 = {name:''}
+ }
 
-      // Pick a remaining element…
-      i = Math.floor(Math.random() * m--);
-
-      // And swap it with the current element.
-      t = array[m];
-      array[m] = array[i];
-      array[i] = t;
-    }
-
-    return array;
-  }
 }
 export interface Card {
   name: string,
   hidden?: boolean,
   exposed?: boolean,
+}
+
+export function shuffle(array: any) {
+  let m = array.length, t, i;
+  while (m) {
+    i = Math.floor(Math.random() * m--);
+    t = array[m];
+    array[m] = array[i];
+    array[i] = t;
+  }
+  return array;
+}
+
+export class Timer {
+  count = signal(0);
+  timer = setInterval(() => { }, 0);
+  constructor() {
+  }
+  reset() {
+    this.count.set(0)
+    clearInterval(this.timer);
+    this.timer = setInterval(() => this.count.update(value => value + 1), 1000);
+  }
 }
 
