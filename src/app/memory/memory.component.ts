@@ -22,7 +22,11 @@ export class MemoryComponent implements OnInit {
   
   ngOnInit(): void {
       this.cards = this.cardService.getCards()
-      this.cards$ = this.cardService.getCards$();
+      
+  }
+
+  onSelectSize(size:string){
+  this.cards$ = this.cardService.getCards$(Number(size));
   }
 
   fieldsize = signal<number>(5);
@@ -85,7 +89,7 @@ export class MemoryComponent implements OnInit {
     return array;
   }
 }
-export type Card = {
+export interface Card  {
   name: string,
   hidden?: boolean,
   exposed?: boolean,

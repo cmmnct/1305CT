@@ -1,10 +1,22 @@
 .field {
     display: flex;
     flex-wrap: wrap;
+    max-width: 800px;
+    margin: auto;
 }
 
 .card {
     width: calc(16% - 10px);
     aspect-ratio: 1/1;
     margin: 5px;
+}
+
+.field4 {
+    width: calc(25% - 10px);
+}
+.field5 {
+    width: calc(20% - 10px);
+}
+.field6 {
+    width: calc(16.666% - 10px);
 }

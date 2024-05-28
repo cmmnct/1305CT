@@ -1,14 +1,13 @@
-<div class="field">
-    @for(card of deck(); track card.name; let index = $index){
-    <tvs-card [card]="card" class="card" (clicked)="onClickCard(card)"/>
-}
-</div>
-
-<hr>
+<select #sizeSelect (change)="onSelectSize(sizeSelect.value)">
+    <option value="" disabled selected>kies een speelveld</option>
+<option value="4">4 x 4</option>
+<option value="5">5 x 5</option>
+<option value="6">6 x 6</option>
+</select>
 
 <div class="field">
     @for(card of cards$ | async; track card.name){
-    <tvs-card [card]="card" class="card" (clicked)="onClickCard(card)"/>
+    <tvs-card [card]="card" class="card" (clicked)="onClickCard(card)" [class]="'field'+ sizeSelect.value"/>
 }
 </div>
  

@@ -19,9 +19,15 @@ getCards(){
   return this.cards
 }
 
-getCards$(){
+getCards$(size:number):Observable<Card[]>{
   return this.http.get<Card[]>('https://my-json-server.typicode.com/cmmnct/memoryGame/cards').pipe(
-    map(cards => this.shuffle(JSON.parse(JSON.stringify(cards.concat(cards)))))
+    map(cards => {
+      let selection:Card[] = this.shuffle(cards);
+      size = Math.floor(Math.pow(size,2)/2);
+      selection = selection.slice(0,size);
+      return this.shuffle(JSON.parse(JSON.stringify(selection.concat(selection))))
+      
+    })
   )
 }
 
