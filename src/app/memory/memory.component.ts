@@ -4,11 +4,12 @@ import { Observable } from 'rxjs';
 import { CardsService } from './cards.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AsyncPipe } from '@angular/common';
+import { TimerPipe } from '../pipes/timer.pipe';
 
 @Component({
   selector: 'tvs-memory',
   standalone: true,
-  imports: [CardComponent, AsyncPipe],
+  imports: [CardComponent, AsyncPipe, TimerPipe],
   templateUrl: './memory.component.html',
   styleUrl: './memory.component.css'
 })
@@ -25,8 +26,12 @@ export class MemoryComponent implements OnInit {
       
   }
 
+  timer:number = 0
+  
+
   onSelectSize(size:string){
   this.cards$ = this.cardService.getCards$(Number(size));
+  setInterval(()=> this.timer++, 1000)
   }
 
   fieldsize = signal<number>(5);
