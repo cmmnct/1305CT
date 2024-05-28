@@ -16,26 +16,29 @@ import { TimerPipe } from '../pipes/timer.pipe';
 export class MemoryComponent implements OnInit {
 
   cardService = inject(CardsService)
-
   cards!: Signal<Card[]>
-
   cards$!: Observable<Card[]>
-  
+  timer: number = 0
+  counter = setInterval(() => { }, 1000);
+
   ngOnInit(): void {
-      this.cards = this.cardService.getCards()
-      
+    this.cards = this.cardService.getCards()
+   
+  }
+  
+  onSelectSize(size: string) {
+    this.timer = 0;
+    clearInterval(this.counter);
+    this.cards$ = this.cardService.getCards$(Number(size));
+    this.counter = setInterval(() => this.count(), 1000)
   }
 
-  timer:number = 0
-  
-
-  onSelectSize(size:string){
-  this.cards$ = this.cardService.getCards$(Number(size));
-  setInterval(()=> this.timer++, 1000)
+  count() {
+    this.timer++
   }
 
   fieldsize = signal<number>(5);
-  selection = computed(()=>this.shuffle(this.cards().slice(0, Math.round(Math.pow(this.fieldsize(), 2))/2)))
+  selection = computed(() => this.shuffle(this.cards().slice(0, Math.round(Math.pow(this.fieldsize(), 2)) / 2)))
 
   card1 = signal<Card>({ name: '' })
   card2 = signal<Card>({ name: '' })
@@ -46,7 +49,7 @@ export class MemoryComponent implements OnInit {
 
   onClickCard(card: Card) {
     if (!this.card1().name) {
-      this.card1.set(card) 
+      this.card1.set(card)
       card.exposed = true;
       this.playSound(card);
     } else if (!this.card2().name) {
@@ -57,11 +60,11 @@ export class MemoryComponent implements OnInit {
     }
   }
 
-  playSound(card:Card){
-    if(!this.mute){
-      let snd = new Audio('assets/snd/'+ card.name + '.wav');
+  playSound(card: Card) {
+    if (!this.mute) {
+      let snd = new Audio('assets/snd/' + card.name + '.wav');
       snd.play();
-     }
+    }
   }
 
   evaluateMatch() {
@@ -94,7 +97,7 @@ export class MemoryComponent implements OnInit {
     return array;
   }
 }
-export interface Card  {
+export interface Card {
   name: string,
   hidden?: boolean,
   exposed?: boolean,
