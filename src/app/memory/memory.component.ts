@@ -1,6 +1,6 @@
 import { Component, signal, Signal, computed, inject, WritableSignal } from '@angular/core';
 import { CardComponent } from '../card/card.component';
-import { Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 import { CardsService } from './cards.service';
 import { AsyncPipe } from '@angular/common';
 import { TimerPipe } from '../pipes/timer.pipe';
@@ -12,65 +12,69 @@ import { TimerPipe } from '../pipes/timer.pipe';
   templateUrl: './memory.component.html',
   styleUrl: './memory.component.css'
 })
-export class MemoryComponent{
-
+export class MemoryComponent {
   cardService = inject(CardsService);
   cards$!: Observable<Card[]>;
-  timer = new Timer();
-  cardSet = new Cardset({name:''}, {name:''});
-  mute = false;
+  gameState = {
+    step: 0,
+    mute: false,
+    timer : new Timer()
+  }
+  cardSet = new Cardset([{ name: '' }, { name: '' }]);
   
-  onSelectSize(size: string) {
-    this.timer.reset();
-    this.cards$ = this.cardService.getCards$(Number(size));
+  // the flow of the entire game in three basic declarative functions
+
+  onSelectSize(size: string) {  //init of the game after selecting field size
+    this.cards$ = this.cardService.getCards$(Number(size)); //loading the random set of cards
+    this.gameState.timer.reset();  // resetting and starting the timer
   }
 
-  onClickCard(card: Card) {
-    if (!this.cardSet.card1.name) {
-      this.cardSet.card1 = card;
-      this.cardSet.card1.exposed = true;
-      this.playSound(card.name);
-    } else if (!this.cardSet.card2.name) {
-      this.cardSet.card2 = card;
-      this.cardSet.card2.exposed = true;
-      this.playSound(card.name);
-      setTimeout(() => this.evaluateMatch(this.cardSet), 2000)
+  onClickCard(card: Card) {  // handling the click events of the cards
+    switch (this.gameState.step) {
+      case 0: this.cardSet.set(card, 0)  // turning the first card
+              this.gameState.step++ // updating gameState
+              break;
+      case 1: this.cardSet.set(card, 1) // turing the second card
+              this.gameState.step++ // updating gameState
+              setTimeout(() => this.evaluateMatch(this.cardSet), 2000) // setting  two seconds time out then evaluating match
+              break;
     }
   }
 
-  playSound(name:string) {
-    if (!this.mute) {
-      let snd = new Audio('assets/snd/' + name + '.wav');
-      snd.play();
+  evaluateMatch(cardSet: Cardset) {
+    if (cardSet.cards[0].name === cardSet.cards[1].name) {  // comparing the cards
+      this.cardSet.hidden();  // hide them (take them out) when equal
+    } else {                  // or
+      this.cardSet.covered()  // turn the cards back 
     }
-  }
-
-  evaluateMatch(cardSet:Cardset) {
-    if (cardSet.card1.name === cardSet.card2.name) {
-      this.cardSet.hidden();
-    } else {
-      this.cardSet.covered()
-    }
-      this.cardSet.reset()
+    this.cardSet.reset()      // reset the cards for the next cycle
+    this.gameState.step = 0   // reset the game cycle for the new cards to be turned
   }
 }
 
+// end of game flow. The folling code in imperative code, types and utils
 
 export class Cardset {
- constructor(public card1:Card, public card2:Card){
- }
- hidden(){
-  this.card1.hidden = true;
-  this.card2.hidden = true;
- }
- covered(){
-  this.card1.exposed = false
-  this.card2.exposed = false
- }
- reset(){
-  this.card1 = {name:''}
-  this.card2 = {name:''}
- }
+  constructor(public cards: Card[]) {
+  }
+  set(card: Card, index:number) {
+    this.cards[index] = card;
+    card.exposed = true;
+    this.playSound(card.name);
+  }
+  hidden() {
+    this.cards.forEach(card => card.hidden = true)
+  }
+  covered() {
+    this.cards.forEach(card => card.exposed = false)
+  }
+  reset() {
+    this.cards.forEach(card => { name: '' })
+  }
+  playSound(name: string) {
+    let snd = new Audio('assets/snd/' + name + '.wav');
+    snd.play();
+  }
 
 }
 export interface Card {
@@ -79,17 +83,11 @@ export interface Card {
   exposed?: boolean,
 }
 
-export function shuffle(array: any) {
-  let m = array.length, t, i;
-  while (m) {
-    i = Math.floor(Math.random() * m--);
-    t = array[m];
-    array[m] = array[i];
-    array[i] = t;
-  }
-  return array;
+export interface gameState{
+  step:number,
+  mute:boolean,
+  timer:Timer
 }
-
 export class Timer {
   count = signal(0);
   timer = setInterval(() => { }, 0);
