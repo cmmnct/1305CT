@@ -1,37 +1,42 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { CommonModule, AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ColorPatch } from '../models/colorpatch';
 import { signal } from '@angular/core';
 import { ColorthumbComponent } from '../colorthumb/colorthumb.component';
 import { PatchEditorComponent } from '../patch-editor/patch-editor.component';
+import { PatchesService } from '../patches.service';
+import { Observable } from 'rxjs';
+import { ColorPatchPipe } from '../pipes/colorpatchPipe';
 
 @Component({
   selector: 'tvs-colorpatches',
   standalone: true,
-  imports: [FormsModule , CommonModule, ColorthumbComponent, PatchEditorComponent],
+  imports: [FormsModule , CommonModule, ColorthumbComponent, PatchEditorComponent, AsyncPipe, ColorPatchPipe],
   templateUrl: './colorpatches.component.html',
   styleUrl: './colorpatches.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ColorpatchesComponent {
+export class ColorpatchesComponent implements OnInit {
 
+  patchesService = inject(PatchesService);
+
+  //constructor(private patchesService:PatchesService){}
   name = "Mark"
   editState = false;
+  patches!: ColorPatch[];
+  patches$!: Observable<ColorPatch[]>;
+
 
   currentPatch = new ColorPatch(56,87,98,1,"smoke");
   editPatch = new ColorPatch(0,0,0,1,'');
 
-  patches:ColorPatch[] = [
-    new ColorPatch(255,255,255,1,'white'),
-    new ColorPatch(0,0,0,1,'black'),
-    new ColorPatch(255,0,0,1,'red'),
-    new ColorPatch(0,255,0,1,'green'),
-    new ColorPatch(0,0,255,1,'blue'),
-    new ColorPatch(255,255,0,1, 'yellow'),
-    new ColorPatch(0,255,255,1,'cyan'),
-    new ColorPatch(255,0,255,1,'magenta')
-  ]
+  ngOnInit(){
+    this.patches = this.patchesService.getPatches();
+    this.patches$ = this.patchesService.getPatches$();
+  }
+
+ 
 
   patchesS = signal([
     new ColorPatch(255,255,255,1,'white'),
@@ -41,7 +46,8 @@ export class ColorpatchesComponent {
     new ColorPatch(0,0,255,1,'blue'),
     new ColorPatch(255,255,0,1, 'yellow'),
     new ColorPatch(0,255,255,1,'cyan'),
-    new ColorPatch(255,0,255,1,'magenta')
+    new ColorPatch(255,0,255,1,'magenta'),
+    new ColorPatch(24,56,78,1,'some color')
   ]) 
 
   onDeletePatch(patch:ColorPatch){

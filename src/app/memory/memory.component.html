@@ -3,4 +3,12 @@
     <tvs-card [card]="card" class="card" (clicked)="onClickCard(card)"/>
 }
 </div>
+
+<hr>
+
+<div class="field">
+    @for(card of cards$ | async; track card.name){
+    <tvs-card [card]="card" class="card" (clicked)="onClickCard(card)"/>
+}
+</div>
  

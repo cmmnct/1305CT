@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, DoCheck, EventEmitter, Input, Output, signal } from '@angular/core';
 import { Card } from '../memory/memory.component';
 
 @Component({
@@ -8,9 +8,11 @@ import { Card } from '../memory/memory.component';
   templateUrl: './card.component.html',
   styleUrl: './card.component.css'
 })
-export class CardComponent {
+export class CardComponent{
 
   @Input({required : true}) card:Card =  {name:''};
   @Output() clicked = new EventEmitter<void>()
+
+  
 
 }

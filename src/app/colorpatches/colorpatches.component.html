@@ -10,3 +10,19 @@
 @if(editState){
     <tvs-patch-editor [patch]="editPatch" (cancel)="onCancelEdit()" (save)="onSavePatch()"/>
 }
+
+<hr>
+<div class="thumbbox">
+    @for(patch of patches$ | async; track patch.id ){
+        <tvs-colorthumb [rgba]="patch | colorToString" [name]="patch.name" (delete)="onDeletePatch(patch)" (edit)="onEditPatch(patch)"/>
+    }
+</div>
+
+<hr>
+<div class="thumbbox">
+    @for(patch of patches$ | async; track patch.id ){
+        <div [style.background-color]="patch | colorToString" class=""></div>
+    }
+</div>
+
+    <div [style.background-color]="editPatch | colorToString" class="colorbox"></div>

@@ -1,54 +1,58 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, Signal, computed, inject, WritableSignal } from '@angular/core';
 import { CardComponent } from '../card/card.component';
+import { Observable } from 'rxjs';
+import { CardsService } from './cards.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'tvs-memory',
   standalone: true,
-  imports: [CardComponent],
+  imports: [CardComponent, AsyncPipe],
   templateUrl: './memory.component.html',
   styleUrl: './memory.component.css'
 })
-export class MemoryComponent {
+export class MemoryComponent implements OnInit {
 
-  cards = signal<Card[]>([{ "name": "dog" },
-  { "name": "cat" },
-  { "name": "rooster" },
-  { "name": "goose" },
-  { "name": "chick" },
-  { "name": "cow" },
-  { "name": "kitten" },
-  { "name": "lamb" },
-  { "name": "mouse" },
-  { "name": "piglet" },
-  { "name": "puppy" },
-  { "name": "duck" },
-  { "name": "horse" },
-  { "name": "goat" },
-  { "name": "sheep" },
-  { "name": "hen" },
-  { "name": "pig" },
-  { "name": "fox" },
-  { "name": "hedgehog" },
-  { "name": "peacock" },
-  { "name": "donkey" },
-  { "name": "pigeon" }
-  ])
+  cardService = inject(CardsService)
+
+  cards!: Signal<Card[]>
+
+  cards$!: Observable<Card[]>
+  
+  ngOnInit(): void {
+      this.cards = this.cardService.getCards()
+      this.cards$ = this.cardService.getCards$();
+  }
+
+  fieldsize = signal<number>(5);
+  selection = computed(()=>this.shuffle(this.cards().slice(0, Math.round(Math.pow(this.fieldsize(), 2))/2)))
 
   card1 = signal<Card>({ name: '' })
   card2 = signal<Card>({ name: '' })
+  mute = false
 
-  deck = computed(() => (this.shuffle(JSON.parse(JSON.stringify(this.cards().concat(this.cards()))))))
+
+  deck = computed(() => (this.shuffle(JSON.parse(JSON.stringify(this.selection().concat(this.selection()))))))
 
   onClickCard(card: Card) {
     if (!this.card1().name) {
       this.card1.set(card) 
       card.exposed = true;
+      this.playSound(card);
     } else if (!this.card2().name) {
       this.card2.set(card)
       card.exposed = true;
+      this.playSound(card);
       setTimeout(() => this.evaluateMatch(), 2000)
     }
+  }
 
+  playSound(card:Card){
+    if(!this.mute){
+      let snd = new Audio('assets/snd/'+ card.name + '.wav');
+      snd.play();
+     }
   }
 
   evaluateMatch() {
@@ -85,6 +89,5 @@ export type Card = {
   name: string,
   hidden?: boolean,
   exposed?: boolean,
-  id?: number
 }
 

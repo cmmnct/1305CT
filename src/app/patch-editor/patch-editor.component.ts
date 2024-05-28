@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ColorPatch } from '../models/colorpatch';
+import { ColorPatchPipe } from '../pipes/colorpatchPipe';
 
 @Component({
   selector: 'tvs-patch-editor',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ColorPatchPipe],
   templateUrl: './patch-editor.component.html',
   styleUrl: './patch-editor.component.css'
 })
